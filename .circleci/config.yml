@@ -27,7 +27,7 @@ jobs:
           command: |
             echo My pipeline id is << pipeline.id >> and my git branch is << pipeline.git.branch >>.
             echo <<pipeline.project.type>> - <<pipeline.project.git_url>>
-            echo <<Author>>
+            echo ${Author}
 workflows:
   say-hello-workflow:
     jobs:
