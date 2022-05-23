@@ -64,11 +64,24 @@ jobs:
             echo My pipeline id is << pipeline.id >> and my git branch is << pipeline.git.branch >>.
             echo <<pipeline.project.type>> - <<pipeline.project.git_url>>
             echo ${Author}
+
+  always_fail_job:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - run: return 1
+      - run: 
+          name: handle Fail
+          command: echo you only see this if a job failed
+          when: on_fail
+
+
 workflows:
   say-hello-workflow:
     jobs:
       - save_hello_world_output
       - useful_info
+      - always_fail_job
       - print_output_file:
           requires:
             - save_hello_world_output
