@@ -48,8 +48,8 @@ jobs:
           at: ./sandbox
       - run:
           command: |
-            echo output.txt
-            echo ./sandbox/secret.txt
+            cat output.txt
+            cat ./sandbox/secret.txt
 
   useful_info:
     docker:
