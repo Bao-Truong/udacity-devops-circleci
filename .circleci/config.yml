@@ -28,6 +28,7 @@ jobs:
             echo "hello world" > output.txt
             mkdir sandbox
             echo "Secret" > ./sandbox/secret.txt
+            ls -la
       - persist_to_workspace:
           root: .
           paths:
@@ -48,6 +49,7 @@ jobs:
           at: ./sandbox
       - run:
           command: |
+            ls -la
             cat output.txt
             cat ./sandbox/secret.txt
 
