@@ -1,22 +1,7 @@
 version: 2.1
 
 jobs:
-  print_hello:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run:
-          name: "Say hello"
-          command: "echo hello "
-  print_world:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run:
-          name: "Say World"
-          command: "echo world!"
+  
   save_hello_world_output:
     docker:
       - image: circleci/node:13.8.0
@@ -43,13 +28,14 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      # - attach_workspace:
-      #     at: .
+      - attach_workspace:
+          at: .
       - attach_workspace:
           at: ./sandbox
       - run:
           command: |
-            ls -la            
+            ls -la
+            cat output.txt
             cat ./sandbox/secret.txt
 
   useful_info:
@@ -60,6 +46,9 @@ jobs:
       - run:
           name: "Useful Global build-in vars"
           command: |
+            whoami
+            ls -la
+            sudo -l
             echo My pipeline id is << pipeline.id >> and my git branch is << pipeline.git.branch >>.
             echo <<pipeline.project.type>> - <<pipeline.project.git_url>>
             echo ${Author}
