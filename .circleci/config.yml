@@ -43,14 +43,13 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      # - attach_workspace:
+      #     at: .
       - attach_workspace:
           at: ./sandbox
       - run:
           command: |
-            ls -la
-            cat output.txt
+            ls -la            
             cat ./sandbox/secret.txt
 
   useful_info:
