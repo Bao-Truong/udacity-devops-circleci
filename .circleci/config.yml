@@ -17,6 +17,40 @@ jobs:
       - run:
           name: "Say World"
           command: "echo world!"
+  save_hello_world_output:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          command: |
+            pwd
+            echo "hello world" > output.txt
+            mkdir sandbox
+            echo "Secret" > ./sandbox/secret.txt
+      - persist_to_workspace:
+          root: .
+          paths:
+            - output*
+      - persist_to_workspace:
+          root: ./sandbox
+          paths:
+            - *
+
+  print_output_file:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - attach_workspace:
+          at: ./sandbox
+      - run:
+          command: |
+            echo output.txt
+            echo ./sandbox/secret.txt
+
   useful_info:
     docker:
       - image: circleci/node:13.8.0
