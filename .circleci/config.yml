@@ -24,7 +24,7 @@ jobs:
       - checkout
       - run:
           name: "Useful Global build-in vars"
-          command: "My pipeline id is << pipeline.id >> and my git branch is << pipeline.git.branch >>. \n <<pipeline.project.type>> - <<pipeline.project.git_url>>"
+          command: "echo My pipeline id is << pipeline.id >> and my git branch is << pipeline.git.branch >>. \n <<pipeline.project.type>> - <<pipeline.project.git_url>>"
 workflows:
   say-hello-workflow:
     jobs:
