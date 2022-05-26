@@ -8,4 +8,4 @@
       msg: "{{ print_result.stdout_lines }}"
 
   - name: create folder
-    shell: mkdir ~/foundyou
+    shell: mkdir -p ~/foundyou

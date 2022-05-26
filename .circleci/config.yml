@@ -23,7 +23,7 @@ jobs:
           command: |
             pwd
             echo "hello world" > output.txt
-            mkdir sandbox
+            mkdir -p sandbox
             echo "Secret" > ./sandbox/secret.txt
             ls -la
       - persist_to_workspace:
