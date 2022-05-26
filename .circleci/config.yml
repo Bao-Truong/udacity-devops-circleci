@@ -81,7 +81,10 @@ jobs:
     docker:
       - image: amazon/aws-cli
     steps:
-      - run: aws cloudformation deploy --stack-name circleCI  --template-file template.yaml  --region=us-east-2
+      - checkout
+      - run: 
+          name: Create Cloudformation Stack
+          command: aws cloudformation deploy --stack-name circleCI  --template-file template.yaml  --region=us-east-2
 
 
 workflows:
