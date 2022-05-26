@@ -15,7 +15,9 @@ commands: # similar to function (reusable)
     parameters:
       s3_bucket:
         type: string
-      region:
+      region: 
+        type: string
+        default: us-east-2
     steps:
       - run:
           command: |
