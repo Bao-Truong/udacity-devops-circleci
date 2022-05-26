@@ -10,6 +10,8 @@ commands: # similar to function (reusable)
       - run: echo <<pipeline.id>>
       - run: echo $CIRCLE_WORKFLOW_ID
       - run: echo <<parameters.additional_print>>
+orbs: 
+  aws-cli: circleci/aws-cli@3.1.1
 
 jobs:
   save_hello_world_output:
@@ -74,14 +76,28 @@ jobs:
           name: handle Fail
           command: echo you only see this if a job failed
           when: on_fail
+        
+  create_infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - run: aws cloudformation create-stack \ 
+            --stack-name circleCI \
+            --template-body file://templates/template.yml \
+            --capabilities "CAPABILITY_IAM" "CAPABILITY_NAMED_IAM" \
+            --region=us-east-2
 
 
 workflows:
   say-hello-workflow:
     jobs:
-      - save_hello_world_output
       - useful_info
-      - always_fail_job
-      - print_output_file:
-          requires:
-            - save_hello_world_output
+  aws-cli:
+    jobs:     
+      - create_infrastructure
+
+      # - save_hello_world_output
+      # # - always_fail_job
+      # - print_output_file:
+      #     requires:
+      #       - save_hello_world_output
