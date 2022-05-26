@@ -112,6 +112,7 @@ jobs:
       - image: alpine:latest
     steps:
       - checkout
+      - run: apk add --update curl
       - run:
           name: Run Curl on server
           command: |
