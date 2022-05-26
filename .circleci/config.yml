@@ -20,7 +20,10 @@ commands: # similar to function (reusable)
         type: string
         default: "us-east-2"
     steps:
-      - run: aws cloudformation destroy --stack-name <<parameters.stack_name>> --region  <<parameters.region>>
+      - run:
+          command: aws cloudformation destroy --stack-name <<parameters.stack_name>> --region  <<parameters.region>>
+          when: on_fail
+
 
 orbs:
   aws-cli: circleci/aws-cli@3.1.1
@@ -104,8 +107,8 @@ jobs:
           name: print file
           command: cat sample.txt
       - run: return 1
-      - destroy_environment
-        when: on_fail 
+      - destroy_environment:
+          stack_name: circleCI        
 
   configurate_infrastructure:
     docker:
