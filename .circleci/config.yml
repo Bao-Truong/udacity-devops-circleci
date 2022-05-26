@@ -81,7 +81,7 @@ jobs:
     docker:
       - image: amazon/aws-cli
     steps:
-      - run: aws cloudformation create-stack --stack-name circleCI  --template-body file://templates/template.yaml  --capabilities "CAPABILITY_IAM" "CAPABILITY_NAMED_IAM" --region=us-east-2
+      - run: aws cloudformation create-stack --stack-name circleCI  --template-body file://./templates/template.yaml  --capabilities "CAPABILITY_IAM" "CAPABILITY_NAMED_IAM" --region=us-east-2
 
 
 workflows:
