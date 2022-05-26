@@ -15,6 +15,7 @@ commands: # similar to function (reusable)
     parameters:
       stack_name:
         type: string
+        default: circleCI
       region:
         type: string
         default: "us-east-2"
@@ -103,8 +104,7 @@ jobs:
           name: print file
           command: cat sample.txt
       - run: return 1
-      - destroy_environment:
-          stack_name: circleCI                   
+      - destroy_environment
         when: on_fail 
 
   configurate_infrastructure:
