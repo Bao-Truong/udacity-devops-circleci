@@ -213,12 +213,24 @@ workflows:
   say-hello-workflow:
     jobs:
       - useful_info
-  aws-cli:
-    jobs:
-      - create_infrastructure
-      - configurate_infrastructure:
-          requires:
-            - create_infrastructure
-      - smoke_test:
-          requires:
-            - configurate_infrastructure
+  # aws-cli:
+  #   jobs:
+  #     - create_infrastructure
+  #     - configurate_infrastructure:
+  #         requires:
+  #           - create_infrastructure
+  #     - smoke_test:
+  #         requires:
+  #           - configurate_infrastructure
+    promote_to_production: 
+      jobs:
+        - create_and_deploy_front_end
+        - get_last_deployment_id:
+            requires: 
+              - create_and_deploy_front_end
+        - promote_to_production:
+            requires: 
+              - get_last_deployment_id
+        - clean_up_old_front_end:
+            requires: 
+              - promote_to_production
