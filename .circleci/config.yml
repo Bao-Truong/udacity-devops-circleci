@@ -114,6 +114,9 @@ workflows:
   aws-cli:
     jobs:
       - create_infrastructure
+      - configurate_infrastructure:
+          requires:
+            - create_infrastructure
 
       # - save_hello_world_output
       # # - always_fail_job
