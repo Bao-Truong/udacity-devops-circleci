@@ -105,7 +105,7 @@ jobs:
           command: apk add --update ansible
       - run:
           name: Configure Server
-          command: ansible-playbook -i inventory.txt playbook.yml
+          command: ansible-playbook -i inventory.txt playbook.yml --ssh-common-args='-o StrictHostKeyChecking=no'
 
 workflows:
   say-hello-workflow:
