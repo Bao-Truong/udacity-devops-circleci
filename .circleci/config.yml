@@ -85,6 +85,12 @@ jobs:
       - run: 
           name: Create Cloudformation Stack
           command: aws cloudformation deploy --stack-name circleCI  --template-file template.yaml  --region=us-east-2
+      - run:
+          name: Output public IP to file
+          command: aws cloudformation describe-stacks --stack-name circleCI --output json --query "Stacks[*].Outputs[?(OutputKey=='PublicIp')].OutputValue" > sample.txt
+      - run:
+          name: print file
+          command: cat sample.txt
 
 
 workflows:
