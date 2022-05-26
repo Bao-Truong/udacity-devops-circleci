@@ -106,7 +106,7 @@ jobs:
           name: Configure Server
           environment:
             ANSIBLE_HOST_KEY_CHECKING: false
-          command: ansible-playbook -i ansible/inventory.txt ansible/playbook.yml --ssh-common-args='-o StrictHostKeyChecking=no'
+          command: ansible-playbook -i inventory.txt playbook.yml --ssh-common-args='-o StrictHostKeyChecking=no'
   smoke_test:
     docker:
       - image: alpine:latest
