@@ -1,0 +1,2 @@
+[all]
+3.134.97.93 ansible_user=ubuntu

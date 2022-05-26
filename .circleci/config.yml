@@ -10,7 +10,7 @@ commands: # similar to function (reusable)
       - run: echo <<pipeline.id>>
       - run: echo $CIRCLE_WORKFLOW_ID
       - run: echo <<parameters.additional_print>>
-orbs: 
+orbs:
   aws-cli: circleci/aws-cli@3.1.1
 
 jobs:
@@ -72,17 +72,17 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - run: return 1
-      - run: 
+      - run:
           name: handle Fail
           command: echo you only see this if a job failed
           when: on_fail
-        
+
   create_infrastructure:
     docker:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run: 
+      - run:
           name: Create Cloudformation Stack
           command: aws cloudformation deploy --stack-name circleCI  --template-file template.yaml  --region=us-east-2
       - run:
@@ -92,13 +92,27 @@ jobs:
           name: print file
           command: cat sample.txt
 
+  configurate_infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+
+    steps:
+      - checkout
+      - add_ssh_key:
+          fingerprints: ["05:dd:20:70:3c:d8:a1:ab:62:15:22:7e:f9:f1:65:4a"]
+      - run:
+          name: Install dependencies
+          command: apk add --update ansible
+      - run:
+          name: Configure Server
+          command: ansible-playbook -i inventory.txt playbook.yml
 
 workflows:
   say-hello-workflow:
     jobs:
       - useful_info
   aws-cli:
-    jobs:     
+    jobs:
       - create_infrastructure
 
       # - save_hello_world_output
