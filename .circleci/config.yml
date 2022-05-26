@@ -11,13 +11,10 @@ commands: # similar to function (reusable)
       - run: echo $CIRCLE_WORKFLOW_ID
       - run: echo <<parameters.additional_print>>
   destroy_environment:
-    description: Destroy current environment
-    environment:
-      stack_name: circleCI-${CIRCLE_WORKFLOW_ID}
+    description: Destroy current environment    
     parameters:
       stack_name:
-        type: string
-        default: $stack_name
+        type: string        
       region:
         type: string
         default: "us-east-2"
