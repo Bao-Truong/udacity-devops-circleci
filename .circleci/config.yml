@@ -11,10 +11,10 @@ commands: # similar to function (reusable)
       - run: echo $CIRCLE_WORKFLOW_ID
       - run: echo <<parameters.additional_print>>
   destroy_environment:
-    description: Destroy current environment    
+    description: Destroy current environment
     parameters:
       stack_name:
-        type: string        
+        type: string
       region:
         type: string
         default: "us-east-2"
@@ -22,7 +22,6 @@ commands: # similar to function (reusable)
       - run:
           command: aws cloudformation delete-stack --stack-name <<parameters.stack_name>> --region  <<parameters.region>>
           when: on_fail
-
 
 orbs:
   aws-cli: circleci/aws-cli@3.1.1
@@ -109,7 +108,7 @@ jobs:
           command: cat sample.txt
       - run: return 1
       - destroy_environment:
-          stack_name: $stack_name        
+          stack_name: $stack_name
 
   configurate_infrastructure:
     docker:
@@ -126,7 +125,7 @@ jobs:
           environment:
             ANSIBLE_HOST_KEY_CHECKING: false
           command: ansible-playbook -i inventory.txt playbook.yml --ssh-common-args='-o StrictHostKeyChecking=no'
-  
+
   smoke_test:
     docker:
       - image: alpine:latest
@@ -174,11 +173,11 @@ jobs:
             --no-paginate --output text > ~/textfile.txt
       - persist_to_workspace:
           root: ~/
-          paths: 
-            - textfile.txt 
+          paths:
+            - textfile.txt
 
   promote_to_production:
-    docker: 
+    docker:
       - image: amazon/aws-cli
     steps:
       - checkout
@@ -199,13 +198,13 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Destroy the previous production version's S3 bucket and CloudFormation stack. 
+          name: Destroy the previous production version's S3 bucket and CloudFormation stack.
           # Use $OldBucketID environment variable or mybucket644752792305 below.
-          # Similarly, you can create and use $OldStackID environment variable in place of production-distro 
+          # Similarly, you can create and use $OldStackID environment variable in place of production-distro
           command: |
             export OldBucketID=$(cat ~/textfile.txt)
             aws s3 rm "s3://${OldBucketID}" --recursive
-          #  aws cloudformation delete-stack --stack-name production-distro 
+          #  aws cloudformation delete-stack --stack-name production-distro
           #  aws cloudformation delete-stack --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7}
           #  aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
 
@@ -222,15 +221,15 @@ workflows:
   #     - smoke_test:
   #         requires:
   #           - configurate_infrastructure
-    promote_to_production: 
-      jobs:
-        - create_and_deploy_front_end
-        - get_last_deployment_id:
-            requires: 
-              - create_and_deploy_front_end
-        - promote_to_production:
-            requires: 
-              - get_last_deployment_id
-        - clean_up_old_front_end:
-            requires: 
-              - promote_to_production
+  promote_to_production:
+    jobs:
+      - create_and_deploy_front_end
+      - get_last_deployment_id:
+          requires:
+            - create_and_deploy_front_end
+      - promote_to_production:
+          requires:
+            - get_last_deployment_id
+      - clean_up_old_front_end:
+          requires:
+            - promote_to_production
