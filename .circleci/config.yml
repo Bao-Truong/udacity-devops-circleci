@@ -157,7 +157,7 @@ jobs:
             --region us-east-2 \
             --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7} \
             --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
-      - run: aws s3 cp index.html s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} 
+      - run: aws s3 cp index.html s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7}
       - destroy_environment:
           stack_name: stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -173,7 +173,10 @@ jobs:
           command: |
             aws cloudformation \
             list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
+            --region us-east-2 \
             --no-paginate --output text > ~/textfile.txt
+      - destroy_environment:
+          stack_name: stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7}
       - persist_to_workspace:
           root: ~/
           paths:
@@ -192,6 +195,8 @@ jobs:
             --region us-east-2 \
             --stack-name production-distro \
             --parameter-overrides PipelineID="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy_environment:
+          stack_name: stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7}
 
   clean_up_old_front_end:
     docker:
@@ -211,6 +216,8 @@ jobs:
           #  aws cloudformation delete-stack --stack-name production-distro
           #  aws cloudformation delete-stack --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7}
           #  aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+      - destroy_environment:
+          stack_name: stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7}
 
 workflows:
   say-hello-workflow:
