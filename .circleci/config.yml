@@ -21,7 +21,7 @@ commands: # similar to function (reusable)
         default: "us-east-2"
     steps:
       - run:
-          command: aws cloudformation destroy --stack-name <<parameters.stack_name>> --region  <<parameters.region>>
+          command: aws cloudformation delete-stack --stack-name <<parameters.stack_name>> --region  <<parameters.region>>
           when: on_fail
 
 
