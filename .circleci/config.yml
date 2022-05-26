@@ -95,7 +95,6 @@ jobs:
   configurate_infrastructure:
     docker:
       - image: python:3.7-alpine3.11
-
     steps:
       - checkout
       - add_ssh_keys:
@@ -107,8 +106,20 @@ jobs:
           name: Configure Server
           environment:
             ANSIBLE_HOST_KEY_CHECKING: false
-          command: ansible-playbook -i inventory.txt playbook.yml --ssh-common-args='-o StrictHostKeyChecking=no'
-
+          command: ansible-playbook -i ansible/inventory.txt ansible/playbook.yml --ssh-common-args='-o StrictHostKeyChecking=no'
+  smoke_test:
+    docker:
+      - image: alpine:latest
+    steps:
+      - checkout
+      - run:
+          name: Run Curl on server
+          command: if curl -s --head "https://google.com" \
+            then \
+            echo "It worked!" \
+            else \
+            echo "It failed" \
+            fi
 workflows:
   say-hello-workflow:
     jobs:
@@ -119,9 +130,6 @@ workflows:
       - configurate_infrastructure:
           requires:
             - create_infrastructure
-
-      # - save_hello_world_output
-      # # - always_fail_job
-      # - print_output_file:
-      #     requires:
-      #       - save_hello_world_output
+      - smoke_test:
+          requires:
+            - configurate_infrastructure
