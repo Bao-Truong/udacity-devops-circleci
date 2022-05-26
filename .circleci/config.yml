@@ -12,10 +12,12 @@ commands: # similar to function (reusable)
       - run: echo <<parameters.additional_print>>
   destroy_environment:
     description: Destroy current environment
+    environment:
+      stack_name: circleCI-${CIRCLE_WORKFLOW_ID}
     parameters:
       stack_name:
         type: string
-        default: circleCI
+        default: $stack_name
       region:
         type: string
         default: "us-east-2"
@@ -95,20 +97,22 @@ jobs:
   create_infrastructure:
     docker:
       - image: amazon/aws-cli
+    environment:
+      stack_name: circleCI-${CIRCLE_WORKFLOW_ID}
     steps:
       - checkout
       - run:
           name: Create Cloudformation Stack
-          command: aws cloudformation deploy --stack-name circleCI  --template-file template.yaml  --region=us-east-2
+          command: aws cloudformation deploy --stack-name $stack_name  --template-file template.yaml  --region=us-east-2
       - run:
           name: Output public IP to file
-          command: aws cloudformation describe-stacks --stack-name circleCI --region=us-east-2 --output json --query "Stacks[*].Outputs[?(OutputKey=='PublicIp')].OutputValue" > sample.txt
+          command: aws cloudformation describe-stacks --stack-name $stack_name --region=us-east-2 --output json --query "Stacks[*].Outputs[?(OutputKey=='PublicIp')].OutputValue" > sample.txt
       - run:
           name: print file
           command: cat sample.txt
       - run: return 1
       - destroy_environment:
-          stack_name: circleCI        
+          stack_name: $stack_name        
 
   configurate_infrastructure:
     docker:
@@ -143,7 +147,71 @@ jobs:
             else
               return 1
             fi
-      
+
+  create_and_deploy_front_end:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Execute bucket.yml - Create Cloudformation Stack
+          command: |
+            aws cloudformation deploy \
+            --template-file bucket.yml \
+            --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7} \
+            --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
+      - run: aws s3 sync index.html s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} --delete
+
+  # Fetch and save the pipeline ID (bucket ID) responsible for the last release.
+  get_last_deployment_id:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - run:
+          name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
+          command: |
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
+            --no-paginate --output text > ~/textfile.txt
+      - persist_to_workspace:
+          root: ~/
+          paths: 
+            - textfile.txt 
+
+  promote_to_production:
+    docker: 
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Execute cloudfront.yml
+          command: |
+            aws cloudformation deploy \
+            --template-file cloudfront.yml \
+            --stack-name production-distro \
+            --parameter-overrides PipelineID="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
+
+  clean_up_old_front_end:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Destroy the previous production version's S3 bucket and CloudFormation stack. 
+          # Use $OldBucketID environment variable or mybucket644752792305 below.
+          # Similarly, you can create and use $OldStackID environment variable in place of production-distro 
+          command: |
+            export OldBucketID=$(cat ~/textfile.txt)
+            aws s3 rm "s3://${OldBucketID}" --recursive
+          #  aws cloudformation delete-stack --stack-name production-distro 
+          #  aws cloudformation delete-stack --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7}
+          #  aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+
 workflows:
   say-hello-workflow:
     jobs:
